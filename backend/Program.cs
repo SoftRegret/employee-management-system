@@ -47,3 +47,4 @@ app.MapControllers();
 // Start the application
 app.Run();
 
+public partial class Program { }
