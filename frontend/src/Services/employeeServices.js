@@ -6,7 +6,9 @@ export async function getEmployees() {
   const response = await fetch(API_URL);
 
   if (!response.ok) {
-    throw new Error("Failed to load employees.");
+    throw new Error(
+      `Failed to load employees. ${response.status} ${response.statusText}` //to identigy the actual HTTP status code and status text returned by the API in case of an error.
+    );
   }
 
   return response.json();

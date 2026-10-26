@@ -1,3 +1,4 @@
+//controller is where CRUD operations from React application are handled.
 using EmployeeManagement.Api.Data;
 using EmployeeManagement.Api.DTOs;
 using EmployeeManagement.Api.Models;
@@ -51,9 +52,10 @@ public class EmployeesController : ControllerBase
         if (emailExists)
         {
             return Conflict(
-                "An employee with this email already exists.");
+                "An employee with this email already exists."); //API returns  409 Conflict
         }
 
+        //map the values from the DTO to a new Employee entity.
         var employee = new Employee
         {
             FullName = dto.FullName,
@@ -66,7 +68,7 @@ public class EmployeesController : ControllerBase
 
         _context.Employees.Add(employee);
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(); //persists the new employee to the database.
 
         return CreatedAtAction(
             nameof(GetEmployee),
@@ -98,6 +100,7 @@ public class EmployeesController : ControllerBase
                 "An employee with this email already exists.");
         }
 
+        //dateof joining is not updated as it is set when the employee is created and should not change.
         employee.FullName = dto.FullName;
         employee.Email = dto.Email;
         employee.Department = dto.Department;

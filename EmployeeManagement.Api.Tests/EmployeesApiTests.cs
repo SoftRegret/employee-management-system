@@ -6,7 +6,7 @@ namespace EmployeeManagement.Api.Tests;
 
 public class EmployeesApiTests
 {
-    [Fact]
+    [Fact] //tells xUnit that this is a test method and run it when dotnet is executed.
     public async Task GetEmployees_ReturnsSuccessStatusCode()
     {
         await using var application =
@@ -23,7 +23,7 @@ public class EmployeesApiTests
     public async Task GetEmployee_WithInvalidId_ReturnsNotFound()
     {
         await using var application =
-            new WebApplicationFactory<Program>();
+            new WebApplicationFactory<Program>(); //lets the test project create a test version of the ASP.NET Core application.
 
         var client = application.CreateClient();
 
