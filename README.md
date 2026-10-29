@@ -85,3 +85,6 @@ employee-management-system/
 ├── EmployeeManagement.Api.Tests/
 ├── docker-compose.yml
 └── README.md
+## Global Excel workbook
+
+See [Global Excel and validation guide](GLOBAL_EXCEL_GUIDE.md) for the implementation, changed files, Docker migration commands, and manual demo tests.

@@ -1,5 +1,12 @@
-//displays the list/table of employees and contains thee edit/delete buttons.
-function EmployeeList({ employees, onEdit, onDelete }) {
+// Displays the list/table of employees
+// Employee actions are separate from the global Excel document.
+
+function EmployeeList({
+  employees,
+  onEdit,
+  onDelete,
+}) {
+  // If there are no employees, show a message.
   if (employees.length === 0) {
     return <div className="empty-state">No employees found.</div>;
   }
@@ -24,13 +31,19 @@ function EmployeeList({ employees, onEdit, onDelete }) {
           {employees.map((employee, index) => (
             <tr key={employee.id}>
               <td>{index + 1}</td>
+
               <td>{employee.fullName}</td>
+
               <td>{employee.email}</td>
+
               <td>{employee.department}</td>
+
               <td>{employee.jobTitle}</td>
 
               <td>
-                {new Date(employee.dateOfJoining).toLocaleDateString()}
+                {new Date(
+                  employee.dateOfJoining
+                ).toLocaleDateString()}
               </td>
 
               <td>
@@ -41,12 +54,16 @@ function EmployeeList({ employees, onEdit, onDelete }) {
                       : "status inactive"
                   }
                 >
-                  {employee.status === 0 ? "Active" : "Inactive"}
+                  {employee.status === 0
+                    ? "Active"
+                    : "Inactive"}
                 </span>
               </td>
 
               <td>
                 <div className="action-buttons">
+
+                  {/* Edit employee */}
                   <button
                     className="action-button"
                     onClick={() => onEdit(employee)}
@@ -54,12 +71,15 @@ function EmployeeList({ employees, onEdit, onDelete }) {
                     Edit
                   </button>
 
+                  {/* Delete employee */}
                   <button
                     className="action-button"
                     onClick={() => onDelete(employee.id)}
                   >
                     Delete
                   </button>
+
+
                 </div>
               </td>
             </tr>

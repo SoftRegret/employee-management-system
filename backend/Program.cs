@@ -25,7 +25,8 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins("http://localhost:5173")
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .WithExposedHeaders("Content-Disposition");
     });
 });
 
@@ -36,6 +37,13 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+// Return a safe, useful response instead of exposing server exception details.
+app.UseExceptionHandler(handler => handler.Run(async context =>
+{
+    context.Response.StatusCode = 500;
+    await context.Response.WriteAsJsonAsync(new { message = "An unexpected server error occurred. Please try again." });
+}));
 
 // Redirect HTTP requests to HTTPS
 app.UseHttpsRedirection();
