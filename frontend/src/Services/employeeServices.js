@@ -1,3 +1,4 @@
+//service file i use to keep the API communication seperate from the UI component. 
 const API_URL =
   import.meta.env.VITE_API_URL ||
   "http://localhost:5000/api/employees";
@@ -7,7 +8,7 @@ export async function getEmployees() {
 
   if (!response.ok) {
     throw new Error(
-      `Failed to load employees. ${response.status} ${response.statusText}` //to identigy the actual HTTP status code and status text returned by the API in case of an error.
+      `Failed to load employees. ${response.status} ${response.statusText}` //to identify the actual HTTP status code and status text returned by the API in case of an error.
     );
   }
 

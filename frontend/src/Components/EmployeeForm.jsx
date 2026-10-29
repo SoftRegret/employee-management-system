@@ -1,3 +1,4 @@
+//displays and manages the form used to add or edit an employee
 import { useEffect, useState } from "react";
 
 const emptyForm = {

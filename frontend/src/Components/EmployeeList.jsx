@@ -1,3 +1,4 @@
+//displays the list/table of employees and contains thee edit/delete buttons.
 function EmployeeList({ employees, onEdit, onDelete }) {
   if (employees.length === 0) {
     return <div className="empty-state">No employees found.</div>;

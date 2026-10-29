@@ -22,4 +22,4 @@ public class UpdateEmployeeDto
     [Required]
     public EmployeeStatus Status { get; set; }
 }
-//ID and DateOfJoining are noot included as they are controlled by th backend.
+//ID and DateOfJoining are not included as they are controlled by th backend.

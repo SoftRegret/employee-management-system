@@ -19,10 +19,10 @@ public class EmployeesController : ControllerBase
     }
 
     // GET: api/employees
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees()
+    [HttpGet] //this endpoints handles the GET request 
+    public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees() //use EF CORE to retrieve all employees from the database asynchronously.
     {
-        var employees = await _context.Employees.ToListAsync();
+        var employees = await _context.Employees.ToListAsync(); //ASP.NET core serializes the result to JSON for the frontend.
 
         return Ok(employees);
     }
@@ -83,12 +83,12 @@ public class EmployeesController : ControllerBase
         UpdateEmployeeDto dto)
     {
         var employee = await _context.Employees.FindAsync(id);
-
+        //find the employee by ID in the database. If not found, return 404 Not Found.
         if (employee == null)
         {
             return NotFound();
         }
-
+        //check for duplicate email.
         bool emailExists = await _context.Employees
             .AnyAsync(e =>
                 e.Email == dto.Email &&
@@ -100,7 +100,7 @@ public class EmployeesController : ControllerBase
                 "An employee with this email already exists.");
         }
 
-        //dateof joining is not updated as it is set when the employee is created and should not change.
+        //date of joining is not updated as it is set when the employee is created and should not change.
         employee.FullName = dto.FullName;
         employee.Email = dto.Email;
         employee.Department = dto.Department;
