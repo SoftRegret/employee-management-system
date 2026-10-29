@@ -4,6 +4,7 @@ using EmployeeManagement.Api.DTOs;
 using EmployeeManagement.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ClosedXML.Excel;
 
 namespace EmployeeManagement.Api.Controllers;
 
@@ -129,4 +130,139 @@ public class EmployeesController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpPost("{id}/excel")]
+public async Task<IActionResult> UploadExcel(int id, IFormFile file)
+{
+    var employee = await _context.Employees.FindAsync(id);
+
+    if (employee == null)
+    {
+        return NotFound("Employee not found.");
+    }
+
+    if (file == null || file.Length == 0)
+    {
+        return BadRequest("No file was uploaded.");
+    }
+
+    var extension = Path.GetExtension(file.FileName).ToLower();
+
+    if (extension != ".xlsx")
+    {
+        return BadRequest("Only .xlsx Excel files are allowed.");
+    }
+
+    using var memoryStream = new MemoryStream();
+
+    await file.CopyToAsync(memoryStream);
+
+    var existingDocument = await _context.EmployeeDocuments
+        .FirstOrDefaultAsync(d => d.EmployeeId == id);
+
+    if (existingDocument != null)
+    {
+        existingDocument.FileName = file.FileName;
+        existingDocument.ContentType = file.ContentType;
+        existingDocument.FileData = memoryStream.ToArray();
+        existingDocument.UploadedAt = DateTime.Now;
+    }
+    else
+    {
+        var document = new EmployeeDocument
+        {
+            EmployeeId = id,
+            FileName = file.FileName,
+            ContentType = file.ContentType,
+            FileData = memoryStream.ToArray(),
+            UploadedAt = DateTime.Now
+        };
+
+        _context.EmployeeDocuments.Add(document);
+    }
+
+    await _context.SaveChangesAsync();
+
+    return Ok(new
+    {
+        message = "Excel file uploaded successfully.",
+        fileName = file.FileName
+    });
+}
+
+    [HttpGet("{id}/excel")]
+public async Task<IActionResult> ViewExcel(int id)
+{
+    var employee = await _context.Employees.FindAsync(id);
+
+    if (employee == null)
+    {
+        return NotFound("Employee not found.");
+    }
+
+    var document = await _context.EmployeeDocuments
+        .FirstOrDefaultAsync(d => d.EmployeeId == id);
+
+    if (document == null)
+    {
+        return NotFound("No Excel file found for this employee.");
+    }
+
+    using var stream = new MemoryStream(document.FileData);
+    using var workbook = new XLWorkbook(stream);
+
+    var sheets = new List<object>();
+
+    foreach (var worksheet in workbook.Worksheets)
+    {
+        var rows = new List<List<string>>();
+
+        foreach (var row in worksheet.RowsUsed())
+        {
+            var cells = row.Cells(1, worksheet.LastColumnUsed()?.ColumnNumber() ?? 1)
+                .Select(cell => cell.GetFormattedString())
+                .ToList();
+
+            rows.Add(cells);
+        }
+
+        sheets.Add(new
+        {
+            name = worksheet.Name,
+            rows = rows
+        });
+    }
+
+    return Ok(new
+    {
+        fileName = document.FileName,
+        uploadedAt = document.UploadedAt,
+        sheets = sheets
+    });
+}
+
+    [HttpGet("{id}/excel/download")]
+public async Task<IActionResult> DownloadExcel(int id)
+{
+    var employee = await _context.Employees.FindAsync(id);
+
+    if (employee == null)
+    {
+        return NotFound("Employee not found.");
+    }
+
+    var document = await _context.EmployeeDocuments
+        .FirstOrDefaultAsync(d => d.EmployeeId == id);
+
+    if (document == null)
+    {
+        return NotFound("No Excel file found for this employee.");
+    }
+
+    return File(
+        document.FileData,
+        document.ContentType,
+        document.FileName
+    );
+}
 }

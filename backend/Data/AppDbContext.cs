@@ -17,4 +17,5 @@ public class AppDbContext : DbContext //: means that AppDbContext inherits from 
     }
     //DbSet<Employee> represents the collection of Employee entities that EF Core can query and persist.
     public DbSet<Employee> Employees { get; set; } //connects the Employee model to the Employees table in the database. EF Core will use this property to perform CRUD operations on the Employees table.
+    public DbSet<EmployeeDocument> EmployeeDocuments { get; set; }
 }
