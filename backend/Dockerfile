@@ -1,3 +1,4 @@
+# Multi-stage Build: compile with the SDK and copy published output into a runtime-only image.
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 
 WORKDIR /src

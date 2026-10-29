@@ -1,3 +1,4 @@
+# Containerization: the frontend image supplies Node and runs the Vite development server.
 FROM node:24-alpine
 
 WORKDIR /app

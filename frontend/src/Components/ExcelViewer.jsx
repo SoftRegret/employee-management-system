@@ -8,6 +8,7 @@ function columnLabel(index) {
   return label;
 }
 
+// Separation of Concerns: this page displays workbook data without editing Employee records.
 export default function ExcelViewer() {
   const [workbook, setWorkbook] = useState(null);
   const [active, setActive] = useState(0);
@@ -23,6 +24,7 @@ export default function ExcelViewer() {
   }
   if (error) return <main className="container viewer-state"><h1>Excel Document</h1><p className="error-message" role="alert">{error}</p><a href="/">Back to employees</a></main>;
   if (!workbook) return <main className="container viewer-state" role="status">Loading Excel workbook...</main>;
+  // Data-driven UI: render the selected worksheet and its arbitrary columns from the API response.
   const sheet = workbook.sheets[active];
   const columns = sheet?.rows[0]?.length || 0;
   return <main className="excel-viewer">

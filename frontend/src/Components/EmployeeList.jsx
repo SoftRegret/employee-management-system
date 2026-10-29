@@ -1,5 +1,4 @@
-// Displays the list/table of employees
-// Employee actions are separate from the global Excel document.
+// SRP: displays employees and delegates edit/delete actions to its parent through callbacks.
 
 function EmployeeList({
   employees,

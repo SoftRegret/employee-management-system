@@ -6,6 +6,7 @@ import ExcelDocument from "./Components/ExcelDocument";
 import ExcelViewer from "./Components/ExcelViewer";
 import { getEmployees, createEmployee, updateEmployee, deleteEmployee } from "./Services/employeeServices";
 
+// Composition: this page combines focused employee and Excel components.
 function EmployeePage() {
   const [employees, setEmployees] = useState([]);
   const [search, setSearch] = useState("");
@@ -22,7 +23,7 @@ function EmployeePage() {
   }
   function closeForm() { setShowForm(false); setEmployeeToEdit(null); }
   async function handleSave(data) {
-    // Let the form display API validation errors and remain open on failure.
+    // Error Propagation: let API errors reach the form so it stays open and displays field messages.
     if (employeeToEdit) await updateEmployee(employeeToEdit.id, data);
     else await createEmployee(data);
     closeForm();
@@ -55,6 +56,7 @@ function EmployeePage() {
   </>;
 }
 
+// KISS: two pages use a pathname check without adding a routing library.
 export default function App() {
   return window.location.pathname.replace(/\/$/, "") === "/excel" ? <ExcelViewer /> : <EmployeePage />;
 }

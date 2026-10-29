@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 //the builder is used to configure things the application will need before the application runs.
 var builder = WebApplication.CreateBuilder(args);
 
-//register AppDbContext and tell it to use SQL Server with DefaultConnection.
+// DI Registration: ASP.NET Core creates AppDbContext so controllers do not create it manually.
+// Configuration: the connection string selects SQL Server without hardcoding it in controllers.
 builder.Services.AddDbContext<AppDbContext>(options => //AddDbContext registers AppDbContext with ASP.NET Core so it can be injected where needed.
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -18,6 +19,7 @@ builder.Services.AddControllers();
 // Register services with ASP.NET Core
 builder.Services.AddOpenApi();
 
+// CORS: permits browser requests from the React frontend on a different origin.
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", policy =>
@@ -38,7 +40,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-// Return a safe, useful response instead of exposing server exception details.
+// Middleware: handles unexpected request failures without exposing exception details.
 app.UseExceptionHandler(handler => handler.Run(async context =>
 {
     context.Response.StatusCode = 500;
@@ -55,4 +57,5 @@ app.MapControllers();
 // Start the application
 app.Run();
 
+// Testability: exposes the application entry point to WebApplicationFactory integration tests.
 public partial class Program { }

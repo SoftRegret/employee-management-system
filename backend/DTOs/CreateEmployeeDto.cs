@@ -4,9 +4,11 @@ using EmployeeManagement.Api.Models;
 
 namespace EmployeeManagement.Api.DTOs;
 
-// Shared by create and update so both endpoints enforce the same rules.
+// DTO: accepts editable fields only; clients cannot set Id or DateOfJoining.
+// Interface: IValidatableObject supplies custom validation to ASP.NET Core.
 public class CreateEmployeeDto : IValidatableObject
 {
+    // Server-side Validation: required fields and valid status values are checked before CRUD runs.
     [Required(ErrorMessage = "Full name is required.")]
     public string FullName { get; set; } = string.Empty;
     [Required(ErrorMessage = "Email is required.")]
@@ -18,6 +20,7 @@ public class CreateEmployeeDto : IValidatableObject
     [EnumDataType(typeof(EmployeeStatus), ErrorMessage = "Select a valid employee status.")]
     public EmployeeStatus Status { get; set; }
 
+    // Business Rules: names exclude digits and unsupported characters; email must be lowercase and valid.
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         var name = FullName?.Trim() ?? "";

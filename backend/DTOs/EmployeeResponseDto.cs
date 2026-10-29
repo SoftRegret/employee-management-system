@@ -2,6 +2,7 @@ using EmployeeManagement.Api.Models;
 
 namespace EmployeeManagement.Api.DTOs;
 
+// API Contract: defines employee list response fields independently of global Excel metadata.
 public class EmployeeResponseDto
 {
     public int Id { get; set; }

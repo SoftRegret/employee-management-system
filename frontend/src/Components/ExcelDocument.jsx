@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getExcel, uploadExcel, downloadExcel } from "../Services/employeeServices";
 
+// Modularity: the global workbook controls remain separate from employee rows and forms.
 export default function ExcelDocument() {
   const [document, setDocument] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,6 +19,7 @@ export default function ExcelDocument() {
     setError(""); setMessage("");
     if (!file.name.toLowerCase().endsWith(".xlsx")) { setError("Only .xlsx Excel files are allowed."); return; }
     setBusy(true);
+    // Graceful Failure: update the displayed document only after the API accepts the upload.
     try { setDocument(await uploadExcel(file)); setMessage("Excel file uploaded successfully."); }
     catch (error) { setError(error.message); }
     finally { setBusy(false); }

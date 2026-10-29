@@ -15,9 +15,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EmployeeManagement.Api.Tests;
 
-// These requests fail validation before any database access.
+// Integration Testing: HTTP requests exercise routing and DTO validation without needing database access.
 public class EmployeeValidationTests
 {
+    // Parameterized Testing: run the same create/update behavior checks with several invalid inputs.
     [Theory]
     [InlineData("Sara123", "sara@gmail.com", "IT", "Developer", 0, "Full name cannot contain numbers.")]
     [InlineData("Sara James", "Sara@gmail.com", "IT", "Developer", 0, "Email must be in lowercase.")]
@@ -79,6 +80,7 @@ public class GlobalExcelTests
     }
 
     [SqlIntegrationFact]
+    // Regression Testing: verify schema migration keeps the latest workbook and preserves employee records.
     public async Task MigrationKeepsLatestWorkbookAndAllEmployees()
     {
         var connection = new SqlConnectionStringBuilder(Environment.GetEnvironmentVariable("TEST_SQL_CONNECTION")!);
@@ -110,7 +112,7 @@ public class GlobalExcelTests
         var connection = Environment.GetEnvironmentVariable("TEST_SQL_CONNECTION")!;
         var options = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(connection).Options;
         await using var database = new AppDbContext(options);
-        // Refuse to create/delete a normal application database.
+        // Test Isolation: use a dedicated test database and refuse normal application database names.
         Assert.StartsWith("EmployeeManagementTests_", database.Database.GetDbConnection().Database);
         await database.Database.MigrateAsync();
         try
@@ -150,6 +152,7 @@ public class GlobalExcelTests
                 (Workbook(new[] { new[] { "Email" }, new[] { "sara@gmail.com" } }, new[] { new[] { "Email" }, new[] { "unknown@gmail.com" } }), "file.xlsx", "Row 2: Employee with email 'unknown@gmail.com' does not exist."),
                 (Workbook(new[] { new[] { "Email", " email " }, new[] { "sara@gmail.com", "sara@gmail.com" } }), "file.xlsx", "must contain only one Email column.")
             };
+            // Behavior Testing: failed uploads must return the reason and preserve the exact previous file.
             foreach (var test in invalid)
             {
                 var response = await Upload(client, test.bytes, test.name);

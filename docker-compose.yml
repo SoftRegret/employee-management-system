@@ -1,3 +1,4 @@
+# Containerization: Compose runs the frontend, API, and database in separate containers.
 services:
 
   database:
@@ -5,9 +6,11 @@ services:
     container_name: employee-database
     environment:
       ACCEPT_EULA: "Y"
+      # Environment Configuration: credentials come from the shell or local .env file.
       MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
     ports:
       - "1433:1433"
+    # Persistence: this named volume retains SQL Server data when its container is recreated.
     volumes:
       - employee-data:/var/opt/mssql
 

@@ -3,9 +3,10 @@
 //use namespace to avoid naming conflicts
 namespace EmployeeManagement.Api.Models;
 
-//class lets us group all those together and create multiple Employee objects.
+// Entity: represents one employee record persisted in SQL Server.
 public class Employee
 {   // get: allow to read value | set: allow to write value
+    // Primary Key: EF Core uses Id to uniquely identify each employee record.
     public int Id { get; set; }
 
     public string FullName { get; set; } = string.Empty; //string.Empty: default value for string type | FullName= ""

@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+// Client-side Validation: show input errors before sending a request; the API also validates independently.
 function validateEmployee(data) {
   const errors = {};
   if (!data.fullName) errors.fullName = "Full name is required.";
@@ -16,6 +17,7 @@ function validateEmployee(data) {
 }
 
 export default function EmployeeForm({ employee, onSave, onClose }) {
+  // Encapsulation: this component owns its draft values, validation errors, and saving state.
   const [data, setData] = useState(employee ? {
     fullName: employee.fullName, email: employee.email, department: employee.department,
     jobTitle: employee.jobTitle, status: employee.status,
@@ -36,6 +38,7 @@ export default function EmployeeForm({ employee, onSave, onClose }) {
     setErrors(validation); setError("");
     if (Object.keys(validation).length) return;
     setSaving(true);
+    // Loose Coupling: the parent supplies saving behavior, so this form does not choose API endpoints.
     try { await onSave(trimmed); }
     catch (error) { setErrors(error.fields || {}); setError(error.message); }
     finally { setSaving(false); }

@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeManagement.Api.Controllers;
 
+// SRP: this controller focuses on global Excel upload, validation, viewing, and download.
+// Dependency Injection: ASP.NET Core supplies AppDbContext through this primary constructor.
 [ApiController]
 [Route("api/excel")]
 public class ExcelController(AppDbContext context) : ControllerBase
@@ -16,6 +18,7 @@ public class ExcelController(AppDbContext context) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Upload()
     {
+        // Fail Fast: reject missing files and unsupported extensions before workbook processing.
         if (!Request.HasFormContentType)
             return BadRequest("Please select an Excel file.");
         IFormFile? file;
@@ -27,24 +30,27 @@ public class ExcelController(AppDbContext context) : ControllerBase
             return BadRequest("Only .xlsx Excel files are allowed.");
 
         using var stream = new MemoryStream();
+        // Async I/O: await the uploaded file copy rather than blocking while it is read.
         await file.CopyToAsync(stream);
         stream.Position = 0;
         XLWorkbook workbook;
+        // Input Validation: parse the workbook because an .xlsx extension alone does not prove validity.
         try { workbook = new XLWorkbook(stream); }
         catch { return BadRequest("The uploaded file is not a valid Excel workbook."); }
 
         using (workbook)
         {
+            // Data Integrity: compare workbook emails to existing employees, ignoring case.
             var emails = new HashSet<string>(await context.Employees.AsNoTracking()
                 .Select(e => e.Email).ToListAsync(), StringComparer.OrdinalIgnoreCase);
             string? validationError;
             try { validationError = ValidateWorkbook(workbook, emails); }
             catch { return BadRequest("The uploaded file is not a valid Excel workbook."); }
+            // Graceful Failure: validation errors leave the previously stored workbook untouched.
             if (validationError != null) return BadRequest(validationError);
         }
 
-        // Nothing is changed until EVERY sheet has passed validation.
-        // Serializable also protects the empty-table case from concurrent uploads.
+        // Transaction: commit only after full validation; serializable isolation protects concurrent uploads.
         await using var transaction = await context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
         var document = await context.EmployeeDocuments.SingleOrDefaultAsync();
         if (document == null)
@@ -61,6 +67,7 @@ public class ExcelController(AppDbContext context) : ControllerBase
         return Ok(new { fileName = document.FileName, uploadedAt = document.UploadedAt });
     }
 
+    // Encapsulation: workbook validation stays private to the Excel controller.
     private static string? ValidateWorkbook(XLWorkbook workbook, HashSet<string> emails)
     {
         bool hasEmployeeRows = false;
@@ -71,6 +78,7 @@ public class ExcelController(AppDbContext context) : ControllerBase
                 .Where(row => row.CellsUsed(XLCellsUsedOptions.Contents)
                     .Any(cell => !string.IsNullOrWhiteSpace(cell.GetFormattedString()))).ToList();
             if (rows.Count == 0) continue;
+            // Business Rule: each non-empty sheet uses its first non-empty row as headers and requires Email.
             var emailHeaders = rows[0].CellsUsed(XLCellsUsedOptions.Contents)
                 .Where(cell => string.Equals(cell.GetString().Trim(), "Email", StringComparison.OrdinalIgnoreCase)).ToList();
             if (emailHeaders.Count == 0)
@@ -114,6 +122,7 @@ public class ExcelController(AppDbContext context) : ControllerBase
         catch { return Problem("The stored Excel workbook could not be read.", statusCode: 500); }
     }
 
+    // HTTP Download: return the original bytes and filename, without regenerating the workbook.
     [HttpGet("download")]
     public async Task<IActionResult> Download()
     {

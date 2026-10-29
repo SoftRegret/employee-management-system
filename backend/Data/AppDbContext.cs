@@ -1,5 +1,4 @@
-//folder for C# code concerned with data access/database
-//how does EF Core work with our application's database?
+// Data Access / ORM: DbContext lets EF Core query and persist SQL Server data as C# objects.
 using EmployeeManagement.Api.Models;
 
 //gives us EF Core classes such as DbContext, DbContextOptions, and DbSet
@@ -15,7 +14,7 @@ public class AppDbContext : DbContext //: means that AppDbContext inherits from 
         : base(options) //pass the options to the parent class constructor (DbContext) so that it can use them to configure the database connection and other settings.
     {
     }
-    //DbSet<Employee> represents the collection of Employee entities that EF Core can query and persist.
+    // DbSet: these collections map employee and global workbook records to separate database tables.
     public DbSet<Employee> Employees { get; set; } //connects the Employee model to the Employees table in the database. EF Core will use this property to perform CRUD operations on the Employees table.
     public DbSet<EmployeeDocument> EmployeeDocuments { get; set; }
 }

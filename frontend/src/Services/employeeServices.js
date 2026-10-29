@@ -1,7 +1,8 @@
+// Environment Configuration: VITE_API_URL selects the backend address for this frontend.
 const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000/api/employees").replace(/\/$/, "");
 const EXCEL_URL = API_URL.replace(/\/employees$/, "/excel");
 
-// Accept ASP.NET ValidationProblemDetails, JSON messages, and plain text errors.
+// Error Propagation: normalize API validation messages so components can show the actual reason.
 async function checkResponse(response) {
   if (response.ok) return response;
   const fallback = response.status >= 500 ? "An unexpected server error occurred. Please try again."
@@ -27,6 +28,7 @@ async function checkResponse(response) {
   throw error;
 }
 
+// Abstraction / DRY: components reuse HTTP handling without repeating fetch and error parsing.
 async function request(url, options) {
   try { return await checkResponse(await fetch(url, options)); }
   catch (error) {
@@ -35,6 +37,7 @@ async function request(url, options) {
   }
 }
 export async function getEmployees() { return (await request(API_URL)).json(); }
+// HTTP Request: send editable employee fields as a JSON request body.
 export async function createEmployee(employee) {
   return (await request(API_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(employee) })).json();
 }
@@ -50,6 +53,7 @@ export async function uploadExcel(file) {
 }
 export async function downloadExcel(fileName) {
   const response = await request(`${EXCEL_URL}/download`);
+  // API Contract: Content-Disposition carries the original download filename from the backend.
   const disposition = response.headers.get("Content-Disposition") || "";
   const encoded = disposition.match(/filename\*=UTF-8''([^;]+)/i);
   const plain = disposition.match(/filename="([^"]+)"|filename=([^;]+)/i);

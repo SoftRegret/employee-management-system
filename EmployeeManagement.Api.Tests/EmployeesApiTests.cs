@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 
 namespace EmployeeManagement.Api.Tests;
 
+// Integration Testing: WebApplicationFactory exercises HTTP routing, controllers, and configured dependencies.
 public class EmployeesApiTests
 {
     [Fact] //tells xUnit that this is a test method and run it when dotnet is executed.
